@@ -242,6 +242,13 @@
       }
     }
 
+    @media (min-width: 901px) {
+      .rfq-grid {
+        grid-template-columns: repeat(3, 1fr);
+        flex-wrap: wrap;
+      }
+    }
+
     /* ── RFQ card ─────────────────────────────── */
     .rfq-card {
       background: var(--white);
@@ -569,6 +576,80 @@
       </ul>
     </div>
 
+    <!-- RFQ #4 — Ipsos China / Desktop CNC -->
+    <div class="rfq-card" id="card-4">
+      <div class="rfq-card-header">
+        <div>
+          <div class="rfq-number">RFQ #4</div>
+          <div class="rfq-client">Ipsos · Desktop CNC</div>
+        </div>
+        <div class="outcome-badge hidden-outcome" id="outcome-4">
+          <span id="outcome-icon-4">?</span>
+          <span id="outcome-label-4">Outcome TBD</span>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge badge-qual">Qualitative</span>
+        <span class="badge" style="background:#f0f4ff;color:#4338ca;border:1px solid #c7d2fe;">IDIs</span>
+      </div>
+      <ul class="rfq-details">
+        <li><span class="detail-icon">🏢</span><span class="detail-label">Client</span><span class="detail-value">Ipsos (via China GPS team)</span></li>
+        <li><span class="detail-icon">👥</span><span class="detail-label">Audience</span><span class="detail-value">Desktop CNC machine users &amp; operators</span></li>
+        <li><span class="detail-icon">🌎</span><span class="detail-label">Geography</span><span class="detail-value">US &amp; Canada</span></li>
+        <li><span class="detail-icon">🗓️</span><span class="detail-label">Deadline</span><span class="detail-constraint">Same-day response required</span></li>
+        <li><span class="detail-icon">⚠️</span><span class="detail-label">Missing</span><span class="detail-missing">N, LOI</span></li>
+      </ul>
+    </div>
+
+    <!-- RFQ #5 — Sutherland Labs / Audible -->
+    <div class="rfq-card" id="card-5">
+      <div class="rfq-card-header">
+        <div>
+          <div class="rfq-number">RFQ #5</div>
+          <div class="rfq-client">Sutherland Labs · Audible</div>
+        </div>
+        <div class="outcome-badge hidden-outcome" id="outcome-5">
+          <span id="outcome-icon-5">?</span>
+          <span id="outcome-label-5">Outcome TBD</span>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge badge-qual">Qualitative</span>
+        <span class="badge" style="background:#f0f4ff;color:#4338ca;border:1px solid #c7d2fe;">Interviews</span>
+      </div>
+      <ul class="rfq-details">
+        <li><span class="detail-icon">🏢</span><span class="detail-label">Client</span><span class="detail-value">Sutherland Labs (end client: Audible)</span></li>
+        <li><span class="detail-icon">👥</span><span class="detail-label">Groups</span><span class="detail-value">4–5 HR/Benefits Decision Makers (200+ employees) + 4–5 Influencers (office managers, EAs)</span></li>
+        <li><span class="detail-icon">⏱️</span><span class="detail-label">LOI</span><span class="detail-value">60 minutes</span></li>
+        <li><span class="detail-icon">📅</span><span class="detail-label">Timeline</span><span class="detail-value">Early June</span></li>
+        <li><span class="detail-icon">🌎</span><span class="detail-label">Geography</span><span class="detail-value">US</span></li>
+      </ul>
+    </div>
+
+    <!-- RFQ #6 — Market-Xcel / CFO Benefits -->
+    <div class="rfq-card" id="card-6">
+      <div class="rfq-card-header">
+        <div>
+          <div class="rfq-number">RFQ #6</div>
+          <div class="rfq-client">Market-Xcel · CFO Benefits</div>
+        </div>
+        <div class="outcome-badge hidden-outcome" id="outcome-6">
+          <span id="outcome-icon-6">?</span>
+          <span id="outcome-label-6">Outcome TBD</span>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge badge-qual">Qualitative</span>
+        <span class="badge" style="background:#f0f4ff;color:#4338ca;border:1px solid #c7d2fe;">Interviews</span>
+      </div>
+      <ul class="rfq-details">
+        <li><span class="detail-icon">🏢</span><span class="detail-label">Client</span><span class="detail-value">Market-Xcel</span></li>
+        <li><span class="detail-icon">👥</span><span class="detail-label">Audience</span><span class="detail-value">CFO-level executives, employee benefits decisions</span></li>
+        <li><span class="detail-icon">📋</span><span class="detail-label">Notes</span><span class="detail-value">Urgent Friday RFQ · full screener provided</span></li>
+        <li><span class="detail-icon">⚠️</span><span class="detail-label">Missing</span><span class="detail-missing">N, timeline, budget</span></li>
+      </ul>
+    </div>
+
   </div><!-- /rfq-grid -->
 
   <!-- Live transcript panel -->
@@ -594,6 +675,9 @@
     1: ['key lime', 'ai admin', 'servicenow', 'first one'],
     2: ['trivoca', 'lab director', 'proprietary panel', 'second one'],
     3: ['cmb', 'asset management', 'financial advisor', 'third one'],
+    4: ['ipsos', 'cnc', 'fourth one', 'fourth'],
+    5: ['sutherland', 'audible', 'bulk purchasing', 'fifth one', 'fifth'],
+    6: ['market-xcel', 'cfo', 'sixth one', 'sixth', 'benefits'],
   };
 
   const OUTCOME_KEYWORDS = {
@@ -605,13 +689,16 @@
   let vapi = null;
   let callActive = false;
   let activeCard = null;
-  let outcomesRevealed = { 1: false, 2: false, 3: false };
+  let outcomesRevealed = { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false };
 
   // Actual outcomes (revealed only when Alex says so)
   const OUTCOMES = {
     1: { type: 'proposal', icon: '✅', label: 'Proposal Sent' },
     2: { type: 'declined', icon: '❌', label: 'Declined' },
     3: { type: 'proposal', icon: '✅', label: 'Proposal Sent' },
+    4: { type: 'declined', icon: '❌', label: 'Declined' },
+    5: { type: 'proposal', icon: '✅', label: 'Proposal Sent' },
+    6: { type: 'declined', icon: '❌', label: 'Declined — Low Feasibility' },
   };
 
   // ── DOM REFS ─────────────────────────────────
