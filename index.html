@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zintro Pricing Workflow Interview</title>
+  <script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.umd.js"></script>
+  <style>
+    :root {
+      --navy: #0a1f44;
+      --navy-light: #1a3260;
+      --navy-lighter: #243f6e;
+      --white: #ffffff;
+      --off-white: #f4f6fb;
+      --accent: #2563eb;
+      --accent-glow: #3b82f6;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --muted: #94a3b8;
+      --border: #d1d9ef;
+      --card-shadow: 0 2px 12px rgba(10,31,68,0.10);
+      --active-shadow: 0 0 0 3px #3b82f6, 0 4px 32px rgba(59,130,246,0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--off-white);
+      color: var(--navy);
+      min-height: 100vh;
+    }
+
+    /* ── Header ───────────────────────────────── */
+    header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(10,31,68,0.18);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--white);
+    }
+
+    .logo span {
+      color: var(--accent-glow);
+    }
+
+    .header-subtitle {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* ── Status badge ─────────────────────────── */
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.3s;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+    }
+
+    .status-badge.connecting .status-dot {
+      background: #f59e0b;
+      animation: pulse 1s infinite;
+    }
+
+    .status-badge.live .status-dot {
+      background: #22c55e;
+      animation: pulse 1.2s infinite;
+    }
+
+    .status-badge.ended .status-dot {
+      background: var(--muted);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* ── Main layout ──────────────────────────── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 36px 24px 60px;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    /* ── Controls panel ───────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .btn-start {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 28px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(10,31,68,0.18);
+    }
+
+    .btn-start:hover {
+      background: var(--navy-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(10,31,68,0.22);
+    }
+
+    .btn-start:active {
+      transform: translateY(0);
+    }
+
+    .btn-start.danger {
+      background: var(--danger);
+    }
+
+    .btn-start.danger:hover {
+      background: #b91c1c;
+    }
+
+    .btn-start:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── Waveform ─────────────────────────────── */
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 32px;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .waveform.active {
+      opacity: 1;
+    }
+
+    .waveform-bar {
+      width: 4px;
+      background: var(--accent);
+      border-radius: 2px;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+
+    .waveform-bar:nth-child(1) { animation-delay: 0s;    height: 12px; }
+    .waveform-bar:nth-child(2) { animation-delay: 0.1s;  height: 20px; }
+    .waveform-bar:nth-child(3) { animation-delay: 0.2s;  height: 28px; }
+    .waveform-bar:nth-child(4) { animation-delay: 0.3s;  height: 20px; }
+    .waveform-bar:nth-child(5) { animation-delay: 0.4s;  height: 12px; }
+    .waveform-bar:nth-child(6) { animation-delay: 0.15s; height: 24px; }
+    .waveform-bar:nth-child(7) { animation-delay: 0.25s; height: 16px; }
+
+    @keyframes wave {
+      0%, 100% { transform: scaleY(0.4); }
+      50%       { transform: scaleY(1); }
+    }
+
+    .speaking-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+
+    .speaking-label.visible {
+      opacity: 1;
+    }
+
+    /* ── RFQ grid ─────────────────────────────── */
+    .rfq-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .rfq-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── RFQ card ─────────────────────────────── */
+    .rfq-card {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rfq-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+
+    .rfq-card.active {
+      border-color: var(--accent-glow);
+      box-shadow: var(--active-shadow);
+      transform: translateY(-2px);
+    }
+
+    .rfq-card.active::before {
+      background: linear-gradient(90deg, var(--accent), var(--accent-glow));
+    }
+
+    .rfq-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .rfq-number {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .rfq-client {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-qual {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .badge-quant {
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    /* Outcome badge */
+    .outcome-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      transition: all 0.4s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .outcome-badge.hidden-outcome {
+      background: #f1f5f9;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .outcome-badge.proposal {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .outcome-badge.declined {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.85); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── Details list ─────────────────────────── */
+    .rfq-details {
+      list-style: none;
+    }
+
+    .rfq-details li {
+      display: flex;
+      gap: 8px;
+      font-size: 0.84rem;
+      color: #334155;
+      padding: 5px 0;
+      border-bottom: 1px solid #f1f5f9;
+      line-height: 1.4;
+    }
+
+    .rfq-details li:last-child {
+      border-bottom: none;
+    }
+
+    .detail-icon {
+      flex-shrink: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: var(--navy);
+      min-width: 72px;
+      flex-shrink: 0;
+    }
+
+    .detail-value {
+      color: #475569;
+    }
+
+    .detail-missing {
+      color: #f59e0b;
+      font-weight: 600;
+    }
+
+    .detail-constraint {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    /* ── Transcript strip ─────────────────────── */
+    .transcript-panel {
+      margin-top: 40px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .transcript-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .transcript-text {
+      font-size: 0.9rem;
+      color: #334155;
+      line-height: 1.6;
+      min-height: 48px;
+      font-style: italic;
+      transition: all 0.2s;
+    }
+
+    .transcript-text.empty {
+      color: var(--muted);
+      font-style: normal;
+    }
+
+    /* ── Footer ───────────────────────────────── */
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      padding: 24px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────── -->
+<header>
+  <div class="header-left">
+    <div>
+      <div class="logo">Zintro<span>·</span></div>
+      <div class="header-subtitle">Pricing Workflow Interview</div>
+    </div>
+  </div>
+  <div id="statusBadge" class="status-badge">
+    <div class="status-dot"></div>
+    <span id="statusText">Ready</span>
+  </div>
+</header>
+
+<!-- ── Main ────────────────────────────────────── -->
+<main>
+
+  <!-- Controls -->
+  <div class="section-label">Interview Controls</div>
+  <div class="controls">
+    <button id="startBtn" class="btn-start" onclick="toggleCall()">
+      <span id="btnIcon">▶</span>
+      <span id="btnText">Start Interview</span>
+    </button>
+    <div class="waveform" id="waveform">
+      <div class="waveform-bar"></div>
+      <div class="waveform-bar"></div>
+      <div class="waveform-bar"></div>
+      <div class="waveform-bar"></div>
+      <div class="waveform-bar"></div>
+      <div class="waveform-bar"></div>
+      <div class="waveform-bar"></div>
+    </div>
+    <span class="speaking-label" id="speakingLabel">Alex is speaking…</span>
+  </div>
+
+  <!-- RFQ cards -->
+  <div class="section-label">RFQs Under Review</div>
+  <div class="rfq-grid">
+
+    <!-- RFQ #1 — Key Lime Interactive -->
+    <div class="rfq-card" id="card-1">
+      <div class="rfq-card-header">
+        <div>
+          <div class="rfq-number">RFQ #1</div>
+          <div class="rfq-client">Key Lime Interactive</div>
+        </div>
+        <div class="outcome-badge hidden-outcome" id="outcome-1">
+          <span id="outcome-icon-1">?</span>
+          <span id="outcome-label-1">Outcome TBD</span>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge badge-qual">Qualitative</span>
+        <span class="badge" style="background:#f0f4ff;color:#4338ca;border:1px solid #c7d2fe;">Interviews</span>
+      </div>
+      <ul class="rfq-details">
+        <li><span class="detail-icon">👥</span><span class="detail-label">Groups</span><span class="detail-value">5 AI Admins (ServiceNow), 10 Service Desk Managers, 15 Service Desk Agents</span></li>
+        <li><span class="detail-icon">🌎</span><span class="detail-label">Geography</span><span class="detail-value">US</span></li>
+        <li><span class="detail-icon">⚠️</span><span class="detail-label">Missing</span><span class="detail-missing">LOI, Incentive</span></li>
+      </ul>
+    </div>
+
+    <!-- RFQ #2 — TriVoca Health -->
+    <div class="rfq-card" id="card-2">
+      <div class="rfq-card-header">
+        <div>
+          <div class="rfq-number">RFQ #2</div>
+          <div class="rfq-client">TriVoca Health</div>
+        </div>
+        <div class="outcome-badge hidden-outcome" id="outcome-2">
+          <span id="outcome-icon-2">?</span>
+          <span id="outcome-label-2">Outcome TBD</span>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge badge-quant">Quantitative</span>
+        <span class="badge" style="background:#f0f4ff;color:#4338ca;border:1px solid #c7d2fe;">Survey</span>
+      </div>
+      <ul class="rfq-details">
+        <li><span class="detail-icon">👥</span><span class="detail-label">Audience</span><span class="detail-value">Lab Directors, Lab Managers, Lab Technicians, Pathologists + OBGYNs &amp; PCPs</span></li>
+        <li><span class="detail-icon">🌎</span><span class="detail-label">Geography</span><span class="detail-value">US only</span></li>
+        <li><span class="detail-icon">⏱️</span><span class="detail-label">LOI</span><span class="detail-value">25 min · IR 50% · 10-day fieldwork</span></li>
+        <li><span class="detail-icon">🚫</span><span class="detail-label">Constraint</span><span class="detail-constraint">Proprietary panel ONLY — no partner panels</span></li>
+      </ul>
+    </div>
+
+    <!-- RFQ #3 — CMB -->
+    <div class="rfq-card" id="card-3">
+      <div class="rfq-card-header">
+        <div>
+          <div class="rfq-number">RFQ #3</div>
+          <div class="rfq-client">CMB</div>
+        </div>
+        <div class="outcome-badge hidden-outcome" id="outcome-3">
+          <span id="outcome-icon-3">?</span>
+          <span id="outcome-label-3">Outcome TBD</span>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge badge-quant">Quantitative</span>
+        <span class="badge" style="background:#f0f4ff;color:#4338ca;border:1px solid #c7d2fe;">Survey</span>
+      </div>
+      <ul class="rfq-details">
+        <li><span class="detail-icon">👥</span><span class="detail-label">Audience</span><span class="detail-value">Financial Advisors, RIAs, Broker-Dealers, Institutional Investors</span></li>
+        <li><span class="detail-icon">🌎</span><span class="detail-label">Geography</span><span class="detail-value">US only</span></li>
+        <li><span class="detail-icon">⏱️</span><span class="detail-label">Survey</span><span class="detail-value">10 or 15 min options</span></li>
+        <li><span class="detail-icon">⚠️</span><span class="detail-label">Missing</span><span class="detail-missing">N (sample size), budget</span></li>
+        <li><span class="detail-icon">🗓️</span><span class="detail-label">Deadline</span><span class="detail-value" style="color:#dc2626;font-weight:600;">Monday 4pm (weekend turnaround)</span></li>
+      </ul>
+    </div>
+
+  </div><!-- /rfq-grid -->
+
+  <!-- Live transcript panel -->
+  <div class="transcript-panel">
+    <div class="transcript-title">Live Transcript — Alex</div>
+    <div class="transcript-text empty" id="transcriptText">Interview hasn't started yet. Press Start Interview to begin.</div>
+  </div>
+
+</main>
+
+<footer>
+  Zintro · Pricing Workflow Interview Tool · Internal Use Only
+</footer>
+
+<!-- ── Script ────────────────────────────────── -->
+<script>
+  // ── CONFIG ──────────────────────────────────
+  const VAPI_PUBLIC_KEY  = 'deec25d8-9e0e-48e1-a203-c2c940d638a1';
+  const VAPI_ASSISTANT_ID = '50138eea-64fb-45ab-a8e7-fe002830a8f3';
+
+  // ── KEYWORD MAP ─────────────────────────────
+  const CARD_KEYWORDS = {
+    1: ['key lime', 'ai admin', 'servicenow', 'first one'],
+    2: ['trivoca', 'lab director', 'proprietary panel', 'second one'],
+    3: ['cmb', 'asset management', 'financial advisor', 'third one'],
+  };
+
+  const OUTCOME_KEYWORDS = {
+    proposal: ['sent a proposal', 'we sent a proposal', 'proposal was sent', 'we did send a proposal'],
+    declined:  ['passed on this one', 'we passed on', 'we declined', 'passed on it', 'did not send'],
+  };
+
+  // ── STATE ───────────────────────────────────
+  let vapi = null;
+  let callActive = false;
+  let activeCard = null;
+  let outcomesRevealed = { 1: false, 2: false, 3: false };
+
+  // Actual outcomes (revealed only when Alex says so)
+  const OUTCOMES = {
+    1: { type: 'proposal', icon: '✅', label: 'Proposal Sent' },
+    2: { type: 'declined', icon: '❌', label: 'Declined' },
+    3: { type: 'proposal', icon: '✅', label: 'Proposal Sent' },
+  };
+
+  // ── DOM REFS ─────────────────────────────────
+  const startBtn      = document.getElementById('startBtn');
+  const btnIcon       = document.getElementById('btnIcon');
+  const btnText       = document.getElementById('btnText');
+  const statusBadge   = document.getElementById('statusBadge');
+  const statusText    = document.getElementById('statusText');
+  const waveform      = document.getElementById('waveform');
+  const speakingLabel = document.getElementById('speakingLabel');
+  const transcriptEl  = document.getElementById('transcriptText');
+
+  // ── HELPERS ──────────────────────────────────
+  function setStatus(state, label) {
+    statusBadge.className = 'status-badge ' + state;
+    statusText.textContent = label;
+  }
+
+  function setActiveCard(n) {
+    if (activeCard === n) return;
+    // Clear old
+    if (activeCard) {
+      document.getElementById('card-' + activeCard).classList.remove('active');
+    }
+    activeCard = n;
+    if (n) {
+      document.getElementById('card-' + n).classList.add('active');
+      // Smooth scroll into view on mobile
+      document.getElementById('card-' + n).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function revealOutcome(cardNum) {
+    if (outcomesRevealed[cardNum]) return;
+    outcomesRevealed[cardNum] = true;
+    const outcome = OUTCOMES[cardNum];
+    const badge = document.getElementById('outcome-' + cardNum);
+    document.getElementById('outcome-icon-' + cardNum).textContent  = outcome.icon;
+    document.getElementById('outcome-label-' + cardNum).textContent = outcome.label;
+    badge.className = 'outcome-badge ' + outcome.type;
+  }
+
+  function setSpeaking(isSpeaking) {
+    if (isSpeaking) {
+      waveform.classList.add('active');
+      speakingLabel.classList.add('visible');
+    } else {
+      waveform.classList.remove('active');
+      speakingLabel.classList.remove('visible');
+    }
+  }
+
+  function processTranscript(text) {
+    const lower = text.toLowerCase();
+
+    // Card detection — check all, pick best match (first matched)
+    for (const [num, keywords] of Object.entries(CARD_KEYWORDS)) {
+      if (keywords.some(kw => lower.includes(kw))) {
+        setActiveCard(parseInt(num));
+        break;
+      }
+    }
+
+    // Outcome detection — only for the currently active card
+    if (activeCard) {
+      const proposalHit = OUTCOME_KEYWORDS.proposal.some(kw => lower.includes(kw));
+      const declinedHit  = OUTCOME_KEYWORDS.declined.some(kw => lower.includes(kw));
+      if (proposalHit || declinedHit) {
+        revealOutcome(activeCard);
+      }
+    }
+  }
+
+  // ── VAPI INIT ────────────────────────────────
+  function initVapi() {
+    // @vapi-ai/web UMD exposes Vapi as window.Vapi
+    const VapiClass = window.Vapi;
+    if (!VapiClass) {
+      alert('Vapi SDK failed to load. Please check your internet connection and refresh.');
+      return null;
+    }
+    const instance = new VapiClass(VAPI_PUBLIC_KEY);
+
+    instance.on('call-start', () => {
+      callActive = true;
+      setStatus('live', 'Live');
+      btnIcon.textContent = '⏹';
+      btnText.textContent = 'End Interview';
+      startBtn.classList.add('danger');
+    });
+
+    instance.on('call-end', () => {
+      callActive = false;
+      setStatus('ended', 'Ended');
+      btnIcon.textContent = '▶';
+      btnText.textContent = 'Restart Interview';
+      startBtn.classList.remove('danger');
+      setSpeaking(false);
+      setActiveCard(null);
+    });
+
+    instance.on('speech-start', () => setSpeaking(true));
+    instance.on('speech-end',   () => setSpeaking(false));
+
+    instance.on('error', (err) => {
+      console.error('Vapi error:', err);
+      setStatus('ended', 'Error');
+      setSpeaking(false);
+      callActive = false;
+      btnIcon.textContent = '▶';
+      btnText.textContent = 'Retry Interview';
+      startBtn.classList.remove('danger');
+      startBtn.disabled = false;
+    });
+
+    instance.on('message', (msg) => {
+      // Handle transcript messages from assistant
+      if (msg.type === 'transcript') {
+        const role = msg.role;      // 'assistant' or 'user'
+        const text = msg.transcript || '';
+
+        if (role === 'assistant') {
+          // Update transcript panel
+          transcriptEl.textContent = text;
+          transcriptEl.classList.remove('empty');
+
+          // Sync cards
+          if (msg.transcriptType === 'final' || msg.transcriptType === undefined) {
+            processTranscript(text);
+          }
+        }
+      }
+
+      // conversation-update also carries full transcript
+      if (msg.type === 'conversation-update') {
+        const messages = msg.conversation || [];
+        const last = messages.filter(m => m.role === 'assistant').pop();
+        if (last && last.content) {
+          transcriptEl.textContent = last.content;
+          transcriptEl.classList.remove('empty');
+          processTranscript(last.content);
+        }
+      }
+    });
+
+    return instance;
+  }
+
+  // ── TOGGLE CALL ──────────────────────────────
+  async function toggleCall() {
+    if (callActive) {
+      // End call
+      vapi && vapi.stop();
+      return;
+    }
+
+    // Disable button while connecting
+    startBtn.disabled = true;
+    setStatus('connecting', 'Connecting…');
+    transcriptEl.textContent = 'Connecting to Alex…';
+    transcriptEl.classList.remove('empty');
+
+    if (!vapi) {
+      vapi = initVapi();
+      if (!vapi) {
+        startBtn.disabled = false;
+        setStatus('', 'Ready');
+        transcriptEl.textContent = 'Failed to initialize Vapi. Check console.';
+        return;
+      }
+    }
+
+    try {
+      await vapi.start(VAPI_ASSISTANT_ID);
+    } catch (err) {
+      console.error('Failed to start call:', err);
+      setStatus('ended', 'Error');
+      transcriptEl.textContent = 'Could not start call: ' + (err.message || err);
+      startBtn.disabled = false;
+    }
+
+    startBtn.disabled = false;
+  }
+</script>
+
+</body>
+</html>
